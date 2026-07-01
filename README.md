@@ -31,7 +31,7 @@
 ```bash
 # 1. Клонировать репозиторий
 git clone https://github.com/Myers66/Django_clean.git
-cd название_репозитория
+cd Django_clean
 
 # 2. Создать виртуальное окружение и активировать его
 python -m venv .venv
