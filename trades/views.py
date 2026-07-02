@@ -4,14 +4,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
 from .models import Trade, TradeImage
 from .utils import serialize_trade_list, serialize_trade_detail
+from .decorators import api_login_required, require_auth_for_methods
 
 User = get_user_model()
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
+@require_auth_for_methods(['POST'])
 def trade_list(request):
     if request.method == "GET":
         trades = Trade.objects.filter(status='open')
@@ -19,9 +20,6 @@ def trade_list(request):
         return JsonResponse(data, safe=False)
 
     elif request.method == "POST":
-        if not request.user.is_authenticated:
-            return JsonResponse({'detail': 'Authentication required'}, status=401)
-
         try:
             body = json.loads(request.body)
         except json.JSONDecodeError:
@@ -53,6 +51,7 @@ def trade_list(request):
 
 @csrf_exempt
 @require_http_methods(["GET", "PUT"])
+@require_auth_for_methods(['PUT'])
 def trade_detail(request, pk):
     trade = get_object_or_404(Trade, pk=pk)
 
@@ -60,9 +59,6 @@ def trade_detail(request, pk):
         return JsonResponse(serialize_trade_detail(trade, request))
 
     elif request.method == "PUT":
-        if not request.user.is_authenticated:
-            return JsonResponse({'detail': 'Authentication required'}, status=401)
-
         try:
             body = json.loads(request.body)
         except json.JSONDecodeError:
@@ -96,7 +92,7 @@ def trade_detail(request, pk):
 
 @csrf_exempt
 @require_http_methods(["POST"])
-@login_required(redirect_field_name=None)
+@api_login_required
 def trade_image_create(request, trade_id):
     trade = get_object_or_404(Trade, pk=trade_id)
 
@@ -124,7 +120,7 @@ def trade_image_create(request, trade_id):
 
 @csrf_exempt
 @require_http_methods(["DELETE"])
-@login_required(redirect_field_name=None)
+@api_login_required
 def trade_image_delete(request, trade_id, image_id):
     image = get_object_or_404(TradeImage, pk=image_id, trade_id=trade_id)
     image.delete()
