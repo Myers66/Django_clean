@@ -47,6 +47,13 @@
 
 Все ответы – **JSON**. Ошибки валидации возвращают HTTP статус **400** с описанием.
 
+## Дополнительные модули
+
+### Асинхронный сервер для загрузки файлов (папка `t2/`)
+- Реализован на `aiohttp`.
+- Запуск: `python t2/main.py` (сервер слушает порт 8080).
+- Эндпоинт: `POST /api/upload/` – принимает файл в теле запроса и возвращает JSON с его размером в байтах (файл не сохраняется на диск и не читается целиком в память).
+
 ## Установка и запуск
 
 ```bash
@@ -62,13 +69,16 @@ python -m venv .venv
 source .venv/bin/activate
 
 # 3. Установить зависимости
-pip install django pillow djangorestframework
+pip install django pillow djangorestframework aiohttp
 
-# 4. Применить миграции
+# 4. Применить миграции Django
 python manage.py migrate
 
 # 5. Создать суперпользователя
 python manage.py createsuperuser
 
-# 6. Запустить сервер разработки
+# 6. Запустить сервер разработки Django
 python manage.py runserver
+
+# 7. (для асинхронного сервера) запустить в другом терминале:
+python t2/main.py
